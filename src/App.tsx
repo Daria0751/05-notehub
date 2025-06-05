@@ -1,13 +1,14 @@
 import { useEffect, useState } from 'react';
 import type { Movie } from './types/movie';
 import { fetchMovies } from './services/movieService';
-import SearchBar from './components/SearchBar';
-import MovieGrid from './components/MovieGrid/MovieGrid';
-import Loader from './components/Loader/Loader';
-import ErrorMessage from './components/ErrorMessage/ErrorMessage';
-import MovieModal from './components/MovieModal/MovieModal';
-import toast from 'react-hot-toast';
 
+import SearchBar from './components/SearchBar';
+import MovieGrid from './components/MovieGrid';
+import Loader from './components/Loader';
+import ErrorMessage from './components/ErrorMessage';
+import MovieModal from './components/MovieModal';
+
+import toast from 'react-hot-toast';
 
 const App = () => {
   const [query, setQuery] = useState('');
@@ -76,4 +77,5 @@ const App = () => {
 };
 
 export default App;
+
 

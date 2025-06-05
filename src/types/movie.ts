@@ -1,4 +1,4 @@
-export interface MovieType {
+export interface Movie {
   id: number;
   poster_path: string;
   backdrop_path: string;
