@@ -16,12 +16,14 @@ const App = () => {
   const [selectedMovie, setSelectedMovie] = useState<Movie | null>(null);
 
   useEffect(() => {
-    if (!query) return;
+    if (!query.trim()) return;
 
     const fetchData = async () => {
       try {
         setLoading(true);
         setError(false);
+        setMovies([]); // Очищення перед новим запитом
+
         const results = await fetchMovies(query);
 
         if (results.length === 0) {
@@ -45,8 +47,8 @@ const App = () => {
       toast('Please enter your search query.');
       return;
     }
+
     setQuery(newQuery);
-    setMovies([]);
   };
 
   const handleSelect = (movie: Movie) => {
@@ -57,14 +59,14 @@ const App = () => {
     setSelectedMovie(null);
   };
 
+  const shouldShowGrid = !loading && !error && movies.length > 0;
+
   return (
     <div>
       <SearchBar onSubmit={handleSearch} />
       {loading && <Loader />}
       {error && <ErrorMessage />}
-      {!loading && !error && movies.length > 0 && (
-        <MovieGrid movies={movies} onSelect={handleSelect} />
-      )}
+      {shouldShowGrid && <MovieGrid movies={movies} onSelect={handleSelect} />}
       {selectedMovie && (
         <MovieModal movie={selectedMovie} onClose={handleCloseModal} />
       )}
@@ -73,3 +75,4 @@ const App = () => {
 };
 
 export default App;
+
