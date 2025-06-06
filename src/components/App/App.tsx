@@ -8,7 +8,7 @@ import ReactPaginate from 'react-paginate';
 import { useQuery } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
 import { fetchMovies } from '../../services/movieService';
-import type { Movie } from '../../types/movie';
+import type { Movie, MovieApiResponse } from '../../types/movie';
 
 import css from './App.module.css';
 
@@ -21,11 +21,12 @@ const App = () => {
     data,
     isLoading,
     isError,
-  } = useQuery({
+  } = useQuery<MovieApiResponse, Error>({
     queryKey: ['movies', query, page],
     queryFn: () => fetchMovies(query, page),
     enabled: !!query,
-    keepPreviousData: true,
+    staleTime: 1000 * 60 * 5, // замість keepPreviousData
+    gcTime: 0,
   });
 
   const handleSearch = (newQuery: string) => {
@@ -46,7 +47,7 @@ const App = () => {
   };
 
   const shouldShowGrid =
-    !isLoading && !isError && data && data.results.length > 0;
+    !isLoading && !isError && data?.results && data.results.length > 0;
 
   return (
     <div>
@@ -55,10 +56,10 @@ const App = () => {
       {isError && <ErrorMessage />}
       {shouldShowGrid && (
         <>
-          <MovieGrid movies={data!.results} onSelect={handleSelect} />
-          {data!.total_pages > 1 && (
+          <MovieGrid movies={data.results} onSelect={handleSelect} />
+          {data.total_pages > 1 && (
             <ReactPaginate
-              pageCount={data!.total_pages}
+              pageCount={data.total_pages}
               pageRangeDisplayed={5}
               marginPagesDisplayed={1}
               onPageChange={({ selected }) => setPage(selected + 1)}
@@ -79,5 +80,6 @@ const App = () => {
 };
 
 export default App;
+
 
 
