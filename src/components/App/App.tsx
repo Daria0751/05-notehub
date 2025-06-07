@@ -25,17 +25,15 @@ const App = () => {
     data,
     isLoading,
     isError,
-  } = useQuery(
-    ['notes', search, page],
-    () => fetchNotes({ search, page, perPage: PER_PAGE }),
-    {
-      keepPreviousData: true,
-      staleTime: 1000 * 60 * 5,
-    }
-  );
+  } = useQuery({
+    queryKey: ['notes', search, page],
+    queryFn: () => fetchNotes({ search, page, perPage: PER_PAGE }),
+    keepPreviousData: true,
+    staleTime: 1000 * 60 * 5,
+  });
 
   useEffect(() => {
-    if (data && data.notes.length === 0) {
+    if (data?.notes?.length === 0) {
       toast('No notes found for your request.');
     }
   }, [data]);
@@ -65,7 +63,7 @@ const App = () => {
       {isLoading && <Loader />}
       {isError && <ErrorMessage />}
 
-      {data && data.notes.length > 0 && (
+      {data?.notes?.length > 0 && (
         <>
           <NoteList notes={data.notes} />
           {data.totalPages > 1 && (
@@ -84,6 +82,8 @@ const App = () => {
 };
 
 export default App;
+
+
 
 
 

@@ -1,48 +1,36 @@
-import type { FormEvent } from 'react';
-import toast from 'react-hot-toast';
-import styles from './SearchBox.module.css';
+import { useState } from 'react';
+import css from './SearchBox.module.css';
 
 interface SearchBoxProps {
-  action: (formData: FormData) => void;
+  onSearch: (value: string) => void;
 }
 
-export default function SearchBox({ action }: SearchBoxProps) {
-  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+const SearchBox = ({ onSearch }: SearchBoxProps) => {
+  const [value, setValue] = useState('');
+
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const formData = new FormData(e.currentTarget);
-    const query = formData.get('query')?.toString().trim();
-
-    if (!query) {
-      toast.error('Будь ласка, введіть текст для пошуку нотаток.');
-      return;
-    }
-
-    action(formData);
-    e.currentTarget.reset(); 
+    onSearch(value); 
   };
 
   return (
-    <header className={styles.header}>
-      <div className={styles.container}>
-        <h1 className={styles.title}>NoteHub</h1>
-
-        <form className={styles.form} onSubmit={handleSubmit}>
-          <input
-            className={styles.input}
-            type="text"
-            name="query"
-            autoComplete="off"
-            placeholder="Пошук нотаток..."
-            autoFocus
-          />
-          <button className={styles.button} type="submit">
-            Пошук
-          </button>
-        </form>
-      </div>
-    </header>
+    <form onSubmit={handleSubmit} className={css.form}>
+      <input
+        type="text"
+        value={value}
+        onChange={(e) => setValue(e.target.value)}
+        placeholder="Search notes..."
+        className={css.input}
+      />
+      <button type="submit" className={css.button}>
+        Search
+      </button>
+    </form>
   );
-}
+};
+
+export default SearchBox;
+
 
 
 

@@ -1,9 +1,9 @@
 import axios from 'axios';
-import type { AxiosResponse } from 'axios';
+import type { AxiosResponse, AxiosError } from 'axios';
 import type { Note, CreateNotePayload } from '../types/note';
 
-
 const BASE_URL = 'https://notehub-public.goit.study/api';
+
 const TOKEN = import.meta.env.VITE_NOTEHUB_TOKEN;
 
 if (!TOKEN) {
@@ -36,11 +36,16 @@ export const fetchNotes = async ({
   search = '',
 }: FetchNotesParams): Promise<FetchNotesResponse> => {
   try {
-    const response: AxiosResponse<any> = await axiosInstance.get('/notes', {
+    const response: AxiosResponse<{
+      data: Note[];
+      total: number;
+      page: number;
+      totalPages: number;
+    }> = await axiosInstance.get('/notes', {
       params: {
         page,
         perPage,
-        search,
+        search: search.trim() || undefined, 
       },
     });
 
@@ -51,7 +56,11 @@ export const fetchNotes = async ({
       totalPages: response.data.totalPages,
     };
   } catch (error) {
-    console.error('Error fetching notes:', error);
+    if (axios.isAxiosError(error)) {
+      console.error('Axios error fetching notes:', error.response?.status, error.response?.data);
+    } else {
+      console.error('Unknown error fetching notes:', error);
+    }
     throw new Error('Failed to fetch notes.');
   }
 };
@@ -63,7 +72,11 @@ export const createNote = async (
     const response: AxiosResponse<Note> = await axiosInstance.post('/notes', payload);
     return response.data;
   } catch (error) {
-    console.error('Error creating note:', error);
+    if (axios.isAxiosError(error)) {
+      console.error('Axios error creating note:', error.response?.status, error.response?.data);
+    } else {
+      console.error('Unknown error creating note:', error);
+    }
     throw new Error('Failed to create note.');
   }
 };
@@ -73,10 +86,15 @@ export const deleteNote = async (id: string): Promise<{ id: string }> => {
     const response: AxiosResponse<{ id: string }> = await axiosInstance.delete(`/notes/${id}`);
     return response.data;
   } catch (error) {
-    console.error('Error deleting note:', error);
+    if (axios.isAxiosError(error)) {
+      console.error('Axios error deleting note:', error.response?.status, error.response?.data);
+    } else {
+      console.error('Unknown error deleting note:', error);
+    }
     throw new Error('Failed to delete note.');
   }
 };
+
 
 
 
