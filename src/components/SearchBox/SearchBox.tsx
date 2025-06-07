@@ -1,37 +1,30 @@
 import type { FormEvent } from 'react';
 import toast from 'react-hot-toast';
-import styles from './SearchBar.module.css';
+import styles from './SearchBox.module.css';
 
-interface SearchBarProps {
+interface SearchBoxProps {
   action: (formData: FormData) => void;
 }
 
-export default function SearchBar({ action }: SearchBarProps) {
+export default function SearchBox({ action }: SearchBoxProps) {
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     const query = formData.get('query')?.toString().trim();
 
     if (!query) {
-      toast.error('Please enter your search query.');
+      toast.error('Будь ласка, введіть текст для пошуку нотаток.');
       return;
     }
 
     action(formData);
-    e.currentTarget.reset(); // автоматичне скидання
+    e.currentTarget.reset(); 
   };
 
   return (
     <header className={styles.header}>
       <div className={styles.container}>
-        <a
-          className={styles.link}
-          href="https://www.themoviedb.org/"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Powered by TMDB
-        </a>
+        <h1 className={styles.title}>NoteHub</h1>
 
         <form className={styles.form} onSubmit={handleSubmit}>
           <input
@@ -39,16 +32,17 @@ export default function SearchBar({ action }: SearchBarProps) {
             type="text"
             name="query"
             autoComplete="off"
-            placeholder="Search movies..."
+            placeholder="Пошук нотаток..."
             autoFocus
           />
           <button className={styles.button} type="submit">
-            Search
+            Пошук
           </button>
         </form>
       </div>
     </header>
   );
 }
+
 
 

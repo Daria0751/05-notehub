@@ -1,16 +1,16 @@
 import { useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import type { Movie } from '../../types/movie';
-import styles from './MovieModal.module.css';
+import type { Note } from '../../types/note';
+import styles from './NoteModal.module.css';
 
-interface MovieModalProps {
-  movie: Movie;
+interface NoteModalProps {
+  note: Note;
   onClose: () => void;
 }
 
 const modalRoot = document.getElementById('modal-root') as HTMLElement;
 
-export default function MovieModal({ movie, onClose }: MovieModalProps) {
+export default function NoteModal({ note, onClose }: NoteModalProps) {
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
@@ -55,19 +55,11 @@ export default function MovieModal({ movie, onClose }: MovieModalProps) {
         >
           &times;
         </button>
-        <img
-          src={`https://image.tmdb.org/t/p/original${movie.backdrop_path}`}
-          alt={movie.title}
-          className={styles.image}
-        />
         <div className={styles.content}>
-          <h2>{movie.title}</h2>
-          <p>{movie.overview}</p>
+          <h2>{note.title}</h2>
+          <p>{note.content}</p>
           <p>
-            <strong>Release Date:</strong> {movie.release_date}
-          </p>
-          <p>
-            <strong>Rating:</strong> {movie.vote_average}/10
+            <strong>Created:</strong> {note.createdAt}
           </p>
         </div>
       </div>
@@ -75,4 +67,5 @@ export default function MovieModal({ movie, onClose }: MovieModalProps) {
     modalRoot
   );
 }
+
 
