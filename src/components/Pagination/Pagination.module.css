@@ -1,0 +1,39 @@
+.paginationWrapper {
+    display: flex;
+    justify-content: center;
+    margin-top: 24px;
+}
+
+.pagination {
+    display: flex;
+    list-style: none;
+    gap: 8px;
+    padding: 0;
+}
+
+.pageItem,
+.nav,
+.break {
+    padding: 6px 12px;
+    cursor: pointer;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    background-color: #f2f2f2;
+    font-weight: 500;
+}
+
+.pageItem:hover,
+.nav:hover {
+    background-color: #e0e0e0;
+}
+
+.active {
+    background-color: #007bff;
+    color: white;
+    border-color: #007bff;
+}
+
+.disabled {
+    opacity: 0.5;
+    pointer-events: none;
+}

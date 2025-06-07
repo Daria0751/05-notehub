@@ -1,16 +1,16 @@
-import type { Movie } from '../../types/movie';
-import styles from './MovieGrid.module.css';
+import type { Movie } from '../../types/note';
+import styles from './NoteList.module.css';
 
-interface MovieGridProps {
+interface NoteListProps {
   movies: Movie[];
   onSelect: (movie: Movie) => void;
 }
 
-export default function MovieGrid({ movies, onSelect }: MovieGridProps) {
+export default function NoteList({ movies, onSelect }: NoteListProps) {
   return (
     <ul className={styles.grid}>
       {movies.map(movie => (
-        <li key={movie.id} onClick={() => onSelect(movie)}>
+        <li key={movie.id} onClick={() => onSelect(movie)} className={styles.item}>
           <div className={styles.card}>
             <img
               className={styles.image}
@@ -25,6 +25,7 @@ export default function MovieGrid({ movies, onSelect }: MovieGridProps) {
     </ul>
   );
 }
+
 
 
 

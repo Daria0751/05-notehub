@@ -1,87 +1,90 @@
 import { useState, useEffect } from 'react';
-import SearchBar from '../SearchBar/SearchBar';
-import MovieGrid from '../MovieGrid/MovieGrid';
+import SearchBox from '../SearchBox/SearchBox';
+import NoteList from '../NoteList/NoteList';
 import Loader from '../Loader/Loader';
 import ErrorMessage from '../ErrorMessage/ErrorMessage';
-import MovieModal from '../MovieModal/MovieModal';
-import ReactPaginate from 'react-paginate';
-import { useQuery } from '@tanstack/react-query';
+import NoteModal from '../NoteModal/NoteModal';
+import Pagination from '../Pagination/Pagination';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import toast, { Toaster } from 'react-hot-toast';
-import { fetchMovies } from '../../services/movieService';
-import type { Movie } from '../../types/movie';
+import { fetchNotes } from '../../services/noteService';
+import type { Note } from '../../types/note';
 
 import css from './App.module.css';
 
+const PER_PAGE = 12;
+
 const App = () => {
-  const [query, setQuery] = useState('');
+  const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
-  const [selectedMovie, setSelectedMovie] = useState<Movie | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const queryClient = useQueryClient();
 
   const {
     data,
     isLoading,
     isError,
-  } = useQuery({
-    queryKey: ['movies', query, page],
-    queryFn: () => fetchMovies(query, page),
-    enabled: !!query,
-    placeholderData: (prev) => prev,
-  });
+  } = useQuery(
+    ['notes', search, page],
+    () => fetchNotes({ search, page, perPage: PER_PAGE }),
+    {
+      keepPreviousData: true,
+      staleTime: 1000 * 60 * 5,
+    }
+  );
 
   useEffect(() => {
-    if (data && data.results.length === 0) {
-      toast('No movies found for your request.');
+    if (data && data.notes.length === 0) {
+      toast('No notes found for your request.');
     }
   }, [data]);
 
-  const handleSearch = (formData: FormData) => {
-    const newQuery = formData.get('query')?.toString().trim() || '';
-    if (!newQuery) {
-      toast.error('Please enter your search query.');
-      return;
-    }
-    setQuery(newQuery);
+  const handleSearch = (value: string) => {
+    setSearch(value);
     setPage(1);
   };
 
-  const handleSelect = (movie: Movie) => setSelectedMovie(movie);
-  const handleCloseModal = () => setSelectedMovie(null);
+  const handlePageChange = (selectedPage: number) => {
+    setPage(selectedPage);
+  };
 
-  const shouldShowGrid =
-    !isLoading && !isError && data?.results && data.results.length > 0;
+  const openModal = () => setIsModalOpen(true);
+  const closeModal = () => setIsModalOpen(false);
 
   return (
-    <div>
+    <div className={css.app}>
       <Toaster />
-      <SearchBar action={handleSearch} />
+      <header className={css.toolbar}>
+        <SearchBox onSearch={handleSearch} />
+        <button className={css.button} onClick={openModal}>
+          Create note +
+        </button>
+      </header>
+
       {isLoading && <Loader />}
       {isError && <ErrorMessage />}
-      {shouldShowGrid && (
+
+      {data && data.notes.length > 0 && (
         <>
-          <MovieGrid movies={data.results} onSelect={handleSelect} />
-          {data.total_pages > 1 && (
-            <ReactPaginate
-              pageCount={data.total_pages}
-              pageRangeDisplayed={5}
-              marginPagesDisplayed={1}
-              onPageChange={({ selected }) => setPage(selected + 1)}
-              forcePage={page - 1}
-              containerClassName={css.pagination}
-              activeClassName={css.active}
-              nextLabel="→"
-              previousLabel="←"
+          <NoteList notes={data.notes} />
+          {data.totalPages > 1 && (
+            <Pagination
+              pageCount={data.totalPages}
+              currentPage={page}
+              onPageChange={handlePageChange}
             />
           )}
         </>
       )}
-      {selectedMovie && (
-        <MovieModal movie={selectedMovie} onClose={handleCloseModal} />
-      )}
+
+      {isModalOpen && <NoteModal onClose={closeModal} />}
     </div>
   );
 };
 
 export default App;
+
 
 
 
