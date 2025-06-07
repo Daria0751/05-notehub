@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import SearchBar from '../SearchBar/SearchBar';
 import MovieGrid from '../MovieGrid/MovieGrid';
 import Loader from '../Loader/Loader';
@@ -6,9 +6,9 @@ import ErrorMessage from '../ErrorMessage/ErrorMessage';
 import MovieModal from '../MovieModal/MovieModal';
 import ReactPaginate from 'react-paginate';
 import { useQuery } from '@tanstack/react-query';
-import toast from 'react-hot-toast';
+import toast, { Toaster } from 'react-hot-toast';
 import { fetchMovies } from '../../services/movieService';
-import type { Movie, MovieApiResponse } from '../../types/movie';
+import type { Movie } from '../../types/movie';
 
 import css from './App.module.css';
 
@@ -21,37 +21,39 @@ const App = () => {
     data,
     isLoading,
     isError,
-  } = useQuery<MovieApiResponse, Error>({
+  } = useQuery({
     queryKey: ['movies', query, page],
     queryFn: () => fetchMovies(query, page),
     enabled: !!query,
-    staleTime: 1000 * 60 * 5, // замість keepPreviousData
-    gcTime: 0,
+    placeholderData: (prev) => prev,
   });
 
-  const handleSearch = (newQuery: string) => {
-    if (!newQuery.trim()) {
-      toast('Please enter your search query.');
+  useEffect(() => {
+    if (data && data.results.length === 0) {
+      toast('No movies found for your request.');
+    }
+  }, [data]);
+
+  const handleSearch = (formData: FormData) => {
+    const newQuery = formData.get('query')?.toString().trim() || '';
+    if (!newQuery) {
+      toast.error('Please enter your search query.');
       return;
     }
     setQuery(newQuery);
     setPage(1);
   };
 
-  const handleSelect = (movie: Movie) => {
-    setSelectedMovie(movie);
-  };
-
-  const handleCloseModal = () => {
-    setSelectedMovie(null);
-  };
+  const handleSelect = (movie: Movie) => setSelectedMovie(movie);
+  const handleCloseModal = () => setSelectedMovie(null);
 
   const shouldShowGrid =
     !isLoading && !isError && data?.results && data.results.length > 0;
 
   return (
     <div>
-      <SearchBar onSubmit={handleSearch} />
+      <Toaster />
+      <SearchBar action={handleSearch} />
       {isLoading && <Loader />}
       {isError && <ErrorMessage />}
       {shouldShowGrid && (
@@ -80,6 +82,7 @@ const App = () => {
 };
 
 export default App;
+
 
 
 
