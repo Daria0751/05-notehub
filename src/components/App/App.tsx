@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useDebounce } from 'use-debounce';
 import { useQuery } from '@tanstack/react-query';
 import toast, { Toaster } from 'react-hot-toast';
@@ -15,20 +15,18 @@ import type { Note } from '../../types/note';
 
 import css from './App.module.css';
 
-const PER_PAGE = 12;
+interface NotesResponse {
+  notes: Note[];
+  totalPages: number;
+}
 
 const App = () => {
   const [search, setSearch] = useState('');
-  const [debouncedSearch] = useDebounce(search, 1000); // збільшено дибаунс
+  const [debouncedSearch] = useDebounce(search, 1000);
   const [page, setPage] = useState(1);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const {
-    data,
-    isLoading,
-    isError,
-    error,
-  } = useQuery({
+  const { data, isLoading, isError, error } = useQuery<NotesResponse, Error>({
     queryKey: ['notes', debouncedSearch, page],
     queryFn: () => fetchNotes(debouncedSearch, page),
     keepPreviousData: true,
@@ -36,7 +34,7 @@ const App = () => {
   });
 
   useEffect(() => {
-    if (data?.notes?.length === 0) {
+    if (data?.notes && data.notes.length === 0) {
       toast('No notes found for your request.');
     }
   }, [data]);
@@ -76,12 +74,12 @@ const App = () => {
       {isLoading && <Loader />}
       {isError && !error?.message.includes('429') && <ErrorMessage />}
 
-      {data?.notes?.length > 0 && (
+      {data?.notes && data.notes.length > 0 && (
         <>
-          <NoteList notes={data.notes} />
+          <NoteList notes={data.notes} onSelect={() => {}} />
           {data.totalPages > 1 && (
             <Pagination
-              pageCount={data.totalPages}
+              pageCount={data.totalPages}  // використання правильного пропса
               currentPage={page}
               onPageChange={handlePageChange}
             />
@@ -95,6 +93,8 @@ const App = () => {
 };
 
 export default App;
+
+
 
 
 
