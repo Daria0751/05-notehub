@@ -12,10 +12,10 @@ interface NoteListProps {
 export default function NoteList({ notes, onSelect }: NoteListProps) {
   const queryClient = useQueryClient();
 
-  const mutation = useMutation<void, Error, number>({
+  const mutation = useMutation<Note, Error, number>({
     mutationFn: deleteNote,
     onSuccess: () => {
-      queryClient.invalidateQueries(['notes']);
+      queryClient.invalidateQueries({ queryKey: ['notes'] });
     },
   });
 
@@ -47,6 +47,7 @@ export default function NoteList({ notes, onSelect }: NoteListProps) {
     </ul>
   );
 }
+
 
 
 

@@ -2,6 +2,8 @@ import React from 'react';
 import { Formik, Form, Field, ErrorMessage as FormikErrorMessage } from 'formik';
 import * as Yup from 'yup';
 
+import css from './NoteForm.module.css';
+
 export interface NoteFormValues {
   title: string;
   content: string;
@@ -38,13 +40,13 @@ const NoteForm: React.FC<NoteFormProps> = ({ initialValues, onSubmit, onClose, i
           <div>
             <label htmlFor="title">Title</label>
             <Field id="title" name="title" type="text" />
-            <FormikErrorMessage name="title" component="div" style={{ color: 'red' }} />
+            <FormikErrorMessage name="title" component="div" className={css.error} />
           </div>
 
           <div>
             <label htmlFor="content">Content</label>
             <Field id="content" name="content" as="textarea" rows={5} />
-            <FormikErrorMessage name="content" component="div" style={{ color: 'red' }} />
+            <FormikErrorMessage name="content" component="div" className={css.error} />
           </div>
 
           <div>
@@ -56,11 +58,11 @@ const NoteForm: React.FC<NoteFormProps> = ({ initialValues, onSubmit, onClose, i
               <option value="Meeting">Meeting</option>
               <option value="Shopping">Shopping</option>
             </Field>
-            <FormikErrorMessage name="tag" component="div" style={{ color: 'red' }} />
+            <FormikErrorMessage name="tag" component="div" className={css.error} />
           </div>
 
           <div style={{ marginTop: '1rem' }}>
-            <button type="submit" disabled={isSubmitting || isSubmitting}>
+            <button type="submit" disabled={isSubmitting}>
               {isSubmitting ? 'Saving...' : 'Save'}
             </button>
             <button type="button" onClick={onClose} style={{ marginLeft: '1rem' }}>
@@ -74,6 +76,7 @@ const NoteForm: React.FC<NoteFormProps> = ({ initialValues, onSubmit, onClose, i
 };
 
 export default NoteForm;
+
 
 
 
