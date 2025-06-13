@@ -80,20 +80,29 @@ const App = () => {
       <Toaster />
       <header className={css.toolbar}>
         <SearchBox value={search} onSearch={handleSearch} onChange={handleSearch} />
-        <button className={css.button} onClick={() => { setSelectedNote(null); openModal(); }}>
+        <button
+          className={css.button}
+          onClick={() => {
+            setSelectedNote(null);
+            openModal();
+          }}
+        >
           Create note +
         </button>
       </header>
 
       {isLoading && <Loader />}
-      {isError && !error?.message.includes('429') && <ErrorMessage />}
+
+      {isError && !error?.message.includes('429') && error?.message && (
+        <ErrorMessage message={error.message} />
+      )}
 
       {data?.notes && data.notes.length > 0 && (
         <>
           <NoteList notes={data.notes} onSelect={handleSelectNote} />
           {data.totalPages > 1 && (
             <Pagination
-              pageCount={data.totalPages}  
+              pageCount={data.totalPages}
               currentPage={page}
               onPageChange={handlePageChange}
             />
@@ -107,6 +116,8 @@ const App = () => {
 };
 
 export default App;
+
+
 
 
 
