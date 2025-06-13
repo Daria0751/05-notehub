@@ -6,7 +6,7 @@ import toast, { Toaster } from 'react-hot-toast';
 import SearchBox from '../SearchBox/SearchBox';
 import NoteList from '../NoteList/NoteList';
 import Loader from '../Loader/Loader';
-import { GlobalErrorMessage } from '../ErrorMessage/GlobalErrorMessage'; // якщо є цей компонент
+import ErrorMessage from '../ErrorMessage/ErrorMessage'; // Універсальний компонент
 import NoteModal from '../NoteModal/NoteModal';
 import Pagination from '../Pagination/Pagination';
 
@@ -40,7 +40,7 @@ const App = () => {
   });
 
   useEffect(() => {
-    if (data?.notes && data.notes.length === 0) {
+    if (data?.notes?.length === 0) {
       toast('No notes found for your request.');
     }
   }, [data]);
@@ -94,13 +94,15 @@ const App = () => {
       {isLoading && <Loader />}
 
       {isError && !error?.message.includes('429') && error?.message && (
-        <GlobalErrorMessage message={error.message} />
+        <ErrorMessage name="" className={css.errorText}>
+          {error.message}
+        </ErrorMessage>
       )}
 
-      {data?.notes && data.notes.length > 0 && (
+      {data?.notes?.length > 0 && (
         <>
           <NoteList notes={data.notes} onSelect={handleSelectNote} />
-          {data?.totalPages && data.totalPages > 1 && (
+          {data.totalPages > 1 && (
             <Pagination
               pageCount={data.totalPages}
               currentPage={page}
@@ -110,12 +112,15 @@ const App = () => {
         </>
       )}
 
-      {isModalOpen && <NoteModal onClose={closeModal} note={selectedNote ?? undefined} />}
+      {isModalOpen && (
+        <NoteModal onClose={closeModal} note={selectedNote ?? undefined} />
+      )}
     </div>
   );
 };
 
 export default App;
+
 
 
 

@@ -1,15 +1,30 @@
+import { useField } from 'formik';
 import styles from './ErrorMessage.module.css';
 
 interface ErrorMessageProps {
-  message: string;
+  name: string;
   className?: string;
+  children?: React.ReactNode;
 }
 
-export default function ErrorMessage({ message, className }: ErrorMessageProps) {
-  if (!message) return null;
+export default function ErrorMessage({
+  name,
+  className,
+  children,
+}: ErrorMessageProps) {
+  const [, meta] = useField(name);
 
-  return <p className={className || styles.text}>{message}</p>;
+  if (children) {
+    return <p className={className || styles.text}>{children}</p>;
+  }
+
+  if (!meta.touched || !meta.error) {
+    return null;
+  }
+
+  return <p className={className || styles.text}>{meta.error}</p>;
 }
+
 
 
 
