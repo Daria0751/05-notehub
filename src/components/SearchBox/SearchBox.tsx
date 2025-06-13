@@ -1,16 +1,20 @@
-import { useState } from 'react';
+import React from 'react';
 import css from './SearchBox.module.css';
 
 interface SearchBoxProps {
+  value: string;
   onSearch: (value: string) => void;
+  onChange: (value: string) => void;
 }
 
-const SearchBox = ({ onSearch }: SearchBoxProps) => {
-  const [value, setValue] = useState('');
-
+const SearchBox = ({ value, onSearch, onChange }: SearchBoxProps) => {
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    onSearch(value); 
+    onSearch(value);
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    onChange(e.target.value);
   };
 
   return (
@@ -18,7 +22,7 @@ const SearchBox = ({ onSearch }: SearchBoxProps) => {
       <input
         type="text"
         value={value}
-        onChange={(e) => setValue(e.target.value)}
+        onChange={handleInputChange}
         placeholder="Search notes..."
         className={css.input}
       />
@@ -30,6 +34,7 @@ const SearchBox = ({ onSearch }: SearchBoxProps) => {
 };
 
 export default SearchBox;
+
 
 
 

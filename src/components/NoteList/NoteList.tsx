@@ -1,30 +1,52 @@
-import type { Movie } from '../../types/note';
+import React from 'react';
+import type { Note } from '../../types/note';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { deleteNote } from '../../services/noteService';
 import styles from './NoteList.module.css';
 
 interface NoteListProps {
-  movies: Movie[];
-  onSelect: (movie: Movie) => void;
+  notes: Note[];
+  onSelect: (note: Note) => void;
 }
 
-export default function NoteList({ movies, onSelect }: NoteListProps) {
+export default function NoteList({ notes, onSelect }: NoteListProps) {
+  const queryClient = useQueryClient();
+
+  const mutation = useMutation(deleteNote, {
+    onSuccess: () => {
+      queryClient.invalidateQueries(['notes']);
+    },
+  });
+
+  const handleDelete = (id: number) => {
+    mutation.mutate(id);
+  };
+
   return (
     <ul className={styles.grid}>
-      {movies.map(movie => (
-        <li key={movie.id} onClick={() => onSelect(movie)} className={styles.item}>
-          <div className={styles.card}>
-            <img
-              className={styles.image}
-              src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
-              alt={movie.title}
-              loading="lazy"
-            />
-            <h2 className={styles.title}>{movie.title}</h2>
+      {notes.map(note => (
+        <li key={note.id} className={styles.item}>
+          <div className={styles.card} onClick={() => onSelect(note)}>
+            <h2 className={styles.title}>{note.title}</h2>
+            <p className={styles.content}>{note.content}</p>
+            <p className={styles.tag}>Tag: {note.tag}</p>
           </div>
+          <button
+            className={styles.deleteButton}
+            onClick={(e) => {
+              e.stopPropagation();
+              handleDelete(note.id);
+            }}
+            disabled={mutation.isLoading}
+          >
+            Delete
+          </button>
         </li>
       ))}
     </ul>
   );
 }
+
 
 
 

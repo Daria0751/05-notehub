@@ -1,6 +1,6 @@
 import axios from 'axios';
-import type { AxiosResponse, AxiosError } from 'axios';
-import type { Note, CreateNotePayload } from '../types/note';
+import type { AxiosResponse } from 'axios';
+import type { Note } from '../types/note';
 
 const BASE_URL = 'https://notehub-public.goit.study/api';
 
@@ -17,12 +17,6 @@ const axiosInstance = axios.create({
   },
 });
 
-interface FetchNotesParams {
-  page?: number;
-  perPage?: number;
-  search?: string;
-}
-
 interface FetchNotesResponse {
   notes: Note[];
   total: number;
@@ -30,11 +24,10 @@ interface FetchNotesResponse {
   totalPages: number;
 }
 
-export const fetchNotes = async ({
-  page = 1,
-  perPage = 12,
-  search = '',
-}: FetchNotesParams): Promise<FetchNotesResponse> => {
+export const fetchNotes = async (
+  search: string,
+  page: number
+): Promise<FetchNotesResponse> => {
   try {
     const response: AxiosResponse<{
       data: Note[];
@@ -43,9 +36,9 @@ export const fetchNotes = async ({
       totalPages: number;
     }> = await axiosInstance.get('/notes', {
       params: {
+        search: typeof search === 'string' && search.trim() !== '' ? search.trim() : undefined,
         page,
-        perPage,
-        search: search.trim() || undefined, 
+        perPage: 12,
       },
     });
 
@@ -66,7 +59,7 @@ export const fetchNotes = async ({
 };
 
 export const createNote = async (
-  payload: CreateNotePayload
+  payload: Omit<Note, 'id'> // оскільки id генерується сервером
 ): Promise<Note> => {
   try {
     const response: AxiosResponse<Note> = await axiosInstance.post('/notes', payload);
@@ -81,9 +74,9 @@ export const createNote = async (
   }
 };
 
-export const deleteNote = async (id: string): Promise<{ id: string }> => {
+export const deleteNote = async (id: number): Promise<Note> => {
   try {
-    const response: AxiosResponse<{ id: string }> = await axiosInstance.delete(`/notes/${id}`);
+    const response: AxiosResponse<Note> = await axiosInstance.delete(`/notes/${id}`);
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error)) {
@@ -94,6 +87,8 @@ export const deleteNote = async (id: string): Promise<{ id: string }> => {
     throw new Error('Failed to delete note.');
   }
 };
+
+
 
 
 

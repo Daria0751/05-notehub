@@ -1,18 +1,9 @@
+
 export interface Note {
-  _id: string;
+  id: number;
   title: string;
   content: string;
-  tag: Tag;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export type Tag = 'Todo' | 'Work' | 'Personal' | 'Meeting' | 'Shopping';
-
-export interface CreateNotePayload {
-  title: string;
-  content?: string;
-  tag: Tag;
+  tag: 'Todo' | 'Work' | 'Personal' | 'Meeting' | 'Shopping';
 }
 
 

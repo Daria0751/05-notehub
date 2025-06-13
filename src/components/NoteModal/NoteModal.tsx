@@ -1,7 +1,9 @@
-import { Formik, Form, Field } from 'formik';
-import * as Yup from 'yup';
+import React, { useEffect } from 'react';
+import ReactDOM from 'react-dom';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import NoteForm from '../NoteForm/NoteForm';
 import { createNote } from '../../services/noteService';
+import type { NoteFormValues } from '../NoteForm/NoteForm';
 import css from './NoteModal.module.css';
 
 interface NoteModalProps {
@@ -9,62 +11,78 @@ interface NoteModalProps {
   note?: {
     title: string;
     content: string;
+    tag?: string;
   };
 }
 
-const NoteSchema = Yup.object().shape({
-  title: Yup.string().required('Title is required'),
-  content: Yup.string().required('Content is required'),
-});
+const modalRoot = document.body;
 
-const NoteModal = ({ onClose, note }: NoteModalProps) => {
+export default function NoteModal({ onClose, note }: NoteModalProps) {
   const queryClient = useQueryClient();
 
-  const mutation = useMutation({
+  useEffect(() => {
+    const originalStyle = window.getComputedStyle(document.body).overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = originalStyle;
+    };
+  }, []);
+
+  useEffect(() => {
+    const handleEsc = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', handleEsc);
+    return () => {
+      window.removeEventListener('keydown', handleEsc);
+    };
+  }, [onClose]);
+
+  const { mutate, isPending } = useMutation({
     mutationFn: createNote,
     onSuccess: () => {
-      queryClient.invalidateQueries(['notes']);
+      queryClient.invalidateQueries({ queryKey: ['notes'] });
       onClose();
+    },
+    onError: (error) => {
+      console.error('Failed to create note:', error);
     },
   });
 
-  return (
-    <div className={css.backdrop}>
+  const handleSubmit = (values: NoteFormValues) => {
+    mutate(values);
+  };
+
+  const handleBackdropClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (e.target === e.currentTarget) onClose();
+  };
+
+  const initialValues = {
+    title: note?.title || '',
+    content: note?.content || '',
+    tag: note?.tag || 'Todo',
+  };
+
+  return ReactDOM.createPortal(
+    <div className={css.backdrop} onClick={handleBackdropClick}>
       <div className={css.modal}>
-        <button className={css.close} onClick={onClose}>×</button>
-
-        <Formik
-          initialValues={{
-            title: note?.title || '',
-            content: note?.content || '',
-          }}
-          validationSchema={NoteSchema}
-          onSubmit={(values) => {
-            mutation.mutate(values);
-          }}
-        >
-          {({ errors, touched }) => (
-            <Form className={css.form}>
-              <label>
-                Title
-                <Field name="title" className={css.input} />
-                {errors.title && touched.title && <div className={css.error}>{errors.title}</div>}
-              </label>
-              <label>
-                Content
-                <Field as="textarea" name="content" className={css.textarea} />
-                {errors.content && touched.content && <div className={css.error}>{errors.content}</div>}
-              </label>
-              <button type="submit" className={css.button}>Save Note</button>
-            </Form>
-          )}
-        </Formik>
+        <button className={css.close} onClick={onClose} aria-label="Close modal">
+          ×
+        </button>
+        <NoteForm
+          onSubmit={handleSubmit}
+          onClose={onClose}
+          isSubmitting={isPending}
+          initialValues={initialValues}
+        />
       </div>
-    </div>
+    </div>,
+    modalRoot
   );
-};
+}
 
-export default NoteModal;
+
+
 
 
 

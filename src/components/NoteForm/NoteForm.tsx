@@ -1,6 +1,10 @@
 import React from 'react';
-import { Formik, Form, Field, ErrorMessage as FormikErrorMessage } from 'formik';
+import { Formik, Form, Field } from 'formik';
 import * as Yup from 'yup';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+
+import { createNote } from '../../services/noteService';
+import ErrorMessage from '../ErrorMessage/ErrorMessage';
 
 import css from './NoteForm.module.css';
 
@@ -11,9 +15,7 @@ interface NoteFormValues {
 }
 
 interface NoteFormProps {
-  onSubmit: (values: NoteFormValues) => void;
-  onCancel: () => void;
-  isSubmitting: boolean;
+  onClose: () => void;
 }
 
 const validationSchema = Yup.object({
@@ -35,14 +37,27 @@ const initialValues: NoteFormValues = {
   tag: 'Todo',
 };
 
-export default function NoteForm({ onSubmit, onCancel, isSubmitting }: NoteFormProps) {
+export default function NoteForm({ onClose }: NoteFormProps) {
+  const queryClient = useQueryClient();
+
+  const { mutate, isPending } = useMutation({
+    mutationFn: createNote,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['notes'] });
+      onClose();
+    },
+  });
+
   return (
     <Formik
       initialValues={initialValues}
       validationSchema={validationSchema}
       onSubmit={(values, { resetForm }) => {
-        onSubmit(values);
-        resetForm();
+        mutate(values, {
+          onSuccess: () => {
+            resetForm();
+          },
+        });
       }}
     >
       {({ isValid, dirty }) => (
@@ -50,11 +65,7 @@ export default function NoteForm({ onSubmit, onCancel, isSubmitting }: NoteFormP
           <div className={css.formGroup}>
             <label htmlFor="title">Title</label>
             <Field id="title" name="title" type="text" className={css.input} />
-            <FormikErrorMessage
-              name="title"
-              component="span"
-              className={css.error}
-            />
+            <ErrorMessage name="title" className={css.error} />
           </div>
 
           <div className={css.formGroup}>
@@ -66,11 +77,7 @@ export default function NoteForm({ onSubmit, onCancel, isSubmitting }: NoteFormP
               rows={8}
               className={css.textarea}
             />
-            <FormikErrorMessage
-              name="content"
-              component="span"
-              className={css.error}
-            />
+            <ErrorMessage name="content" className={css.error} />
           </div>
 
           <div className={css.formGroup}>
@@ -82,26 +89,22 @@ export default function NoteForm({ onSubmit, onCancel, isSubmitting }: NoteFormP
               <option value="Meeting">Meeting</option>
               <option value="Shopping">Shopping</option>
             </Field>
-            <FormikErrorMessage
-              name="tag"
-              component="span"
-              className={css.error}
-            />
+            <ErrorMessage name="tag" className={css.error} />
           </div>
 
           <div className={css.actions}>
             <button
               type="button"
               className={css.cancelButton}
-              onClick={onCancel}
-              disabled={isSubmitting}
+              onClick={onClose}
+              disabled={isPending}
             >
               Cancel
             </button>
             <button
               type="submit"
               className={css.submitButton}
-              disabled={!dirty || !isValid || isSubmitting}
+              disabled={!dirty || !isValid || isPending}
             >
               Create note
             </button>
@@ -111,3 +114,5 @@ export default function NoteForm({ onSubmit, onCancel, isSubmitting }: NoteFormP
     </Formik>
   );
 }
+
+
