@@ -3,7 +3,6 @@ import ReactDOM from 'react-dom';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import NoteForm from '../NoteForm/NoteForm';
 import { createNote } from '../../services/noteService';
-import type { NoteFormValues } from '../NoteForm/NoteForm';
 import css from './NoteModal.module.css';
 
 interface NoteModalProps {
@@ -11,8 +10,14 @@ interface NoteModalProps {
   note?: {
     title: string;
     content: string;
-    tag?: string;
+    tag?: 'Todo' | 'Work' | 'Personal' | 'Meeting' | 'Shopping';
   };
+}
+
+interface NoteFormValues {
+  title: string;
+  content: string;
+  tag: 'Todo' | 'Work' | 'Personal' | 'Meeting' | 'Shopping';
 }
 
 const modalRoot = document.body;
@@ -38,7 +43,7 @@ export default function NoteModal({ onClose, note }: NoteModalProps) {
     };
   }, [onClose]);
 
-  const { mutate, isPending } = useMutation({
+  const { mutate, isLoading } = useMutation({
     mutationFn: createNote,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['notes'] });
@@ -57,7 +62,7 @@ export default function NoteModal({ onClose, note }: NoteModalProps) {
     if (e.target === e.currentTarget) onClose();
   };
 
-  const initialValues = {
+  const initialValues: NoteFormValues = {
     title: note?.title || '',
     content: note?.content || '',
     tag: note?.tag || 'Todo',
@@ -72,7 +77,7 @@ export default function NoteModal({ onClose, note }: NoteModalProps) {
         <NoteForm
           onSubmit={handleSubmit}
           onClose={onClose}
-          isSubmitting={isPending}
+          isSubmitting={isLoading}
           initialValues={initialValues}
         />
       </div>
@@ -80,6 +85,7 @@ export default function NoteModal({ onClose, note }: NoteModalProps) {
     modalRoot
   );
 }
+
 
 
 

@@ -25,8 +25,14 @@ const App = () => {
   const [debouncedSearch] = useDebounce(search, 1000);
   const [page, setPage] = useState(1);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedNote, setSelectedNote] = useState<Note | null>(null);
 
-  const { data, isLoading, isError, error } = useQuery<NotesResponse, Error>({
+  const {
+    data,
+    isLoading,
+    isError,
+    error,
+  } = useQuery<NotesResponse, Error>({
     queryKey: ['notes', debouncedSearch, page],
     queryFn: () => fetchNotes(debouncedSearch, page),
     keepPreviousData: true,
@@ -59,14 +65,22 @@ const App = () => {
   };
 
   const openModal = () => setIsModalOpen(true);
-  const closeModal = () => setIsModalOpen(false);
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setSelectedNote(null);
+  };
+
+  const handleSelectNote = (note: Note) => {
+    setSelectedNote(note);
+    setIsModalOpen(true);
+  };
 
   return (
     <div className={css.app}>
       <Toaster />
       <header className={css.toolbar}>
         <SearchBox value={search} onSearch={handleSearch} onChange={handleSearch} />
-        <button className={css.button} onClick={openModal}>
+        <button className={css.button} onClick={() => { setSelectedNote(null); openModal(); }}>
           Create note +
         </button>
       </header>
@@ -76,10 +90,10 @@ const App = () => {
 
       {data?.notes && data.notes.length > 0 && (
         <>
-          <NoteList notes={data.notes} onSelect={() => {}} />
+          <NoteList notes={data.notes} onSelect={handleSelectNote} />
           {data.totalPages > 1 && (
             <Pagination
-              pageCount={data.totalPages}  // використання правильного пропса
+              pageCount={data.totalPages}  
               currentPage={page}
               onPageChange={handlePageChange}
             />
@@ -87,12 +101,13 @@ const App = () => {
         </>
       )}
 
-      {isModalOpen && <NoteModal onClose={closeModal} />}
+      {isModalOpen && <NoteModal onClose={closeModal} note={selectedNote ?? undefined} />}
     </div>
   );
 };
 
 export default App;
+
 
 
 

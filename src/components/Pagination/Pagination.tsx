@@ -25,7 +25,7 @@ export default function Pagination({
         onPageChange={handlePageClick}
         pageRangeDisplayed={5}
         marginPagesDisplayed={1}
-        pageCount={totalPages}
+        pageCount={totalPages}       
         forcePage={currentPage - 1}
         containerClassName={styles.pagination}
         activeClassName={styles.active}
@@ -38,3 +38,4 @@ export default function Pagination({
     </div>
   );
 }
+
