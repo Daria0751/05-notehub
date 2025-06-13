@@ -6,7 +6,7 @@ import toast, { Toaster } from 'react-hot-toast';
 import SearchBox from '../SearchBox/SearchBox';
 import NoteList from '../NoteList/NoteList';
 import Loader from '../Loader/Loader';
-import ErrorMessage from '../ErrorMessage/ErrorMessage';
+import { GlobalErrorMessage } from '../ErrorMessage/GlobalErrorMessage'; // якщо є цей компонент
 import NoteModal from '../NoteModal/NoteModal';
 import Pagination from '../Pagination/Pagination';
 
@@ -94,13 +94,13 @@ const App = () => {
       {isLoading && <Loader />}
 
       {isError && !error?.message.includes('429') && error?.message && (
-        <ErrorMessage message={error.message} />
+        <GlobalErrorMessage message={error.message} />
       )}
 
       {data?.notes && data.notes.length > 0 && (
         <>
           <NoteList notes={data.notes} onSelect={handleSelectNote} />
-          {data.totalPages > 1 && (
+          {data?.totalPages && data.totalPages > 1 && (
             <Pagination
               pageCount={data.totalPages}
               currentPage={page}
@@ -116,6 +116,7 @@ const App = () => {
 };
 
 export default App;
+
 
 
 
