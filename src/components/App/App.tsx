@@ -34,7 +34,7 @@ const App = () => {
   } = useQuery<NotesResponse, Error>({
     queryKey: ['notes', debouncedSearch, page],
     queryFn: () => fetchNotes(debouncedSearch, page),
-    placeholderData: { notes: [], totalPages: 1 },
+    keepPreviousData: true,
     staleTime: 1000 * 60 * 5,
   });
 
@@ -103,6 +103,7 @@ const App = () => {
 };
 
 export default App;
+
 
 
 
