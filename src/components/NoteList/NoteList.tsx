@@ -1,4 +1,3 @@
-import React from 'react';
 import type { Note } from '../../types/note';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { deleteNote } from '../../services/noteService';
@@ -6,13 +5,13 @@ import styles from './NoteList.module.css';
 
 interface NoteListProps {
   notes: Note[];
-  onSelect: (note: Note) => void;
+  onSelect?: (note: Note) => void;
 }
 
 export default function NoteList({ notes, onSelect }: NoteListProps) {
   const queryClient = useQueryClient();
 
-  const mutation = useMutation<Note, Error, number>({
+  const mutation = useMutation({
     mutationFn: deleteNote,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['notes'] });
@@ -27,7 +26,10 @@ export default function NoteList({ notes, onSelect }: NoteListProps) {
     <ul className={styles.grid}>
       {notes.map(note => (
         <li key={note.id} className={styles.item}>
-          <div className={styles.card} onClick={() => onSelect(note)}>
+          <div
+            className={styles.card}
+            onClick={() => onSelect?.(note)}
+          >
             <h2 className={styles.title}>{note.title}</h2>
             <p className={styles.content}>{note.content}</p>
             <p className={styles.tag}>Tag: {note.tag}</p>
@@ -47,6 +49,7 @@ export default function NoteList({ notes, onSelect }: NoteListProps) {
     </ul>
   );
 }
+
 
 
 

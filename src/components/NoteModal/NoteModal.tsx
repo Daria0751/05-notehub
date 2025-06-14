@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import ReactDOM from 'react-dom';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import NoteForm from '../NoteForm/NoteForm';
@@ -43,7 +43,7 @@ export default function NoteModal({ onClose, note }: NoteModalProps) {
     };
   }, [onClose]);
 
-  const { mutate, isLoading } = useMutation({
+  const mutation = useMutation({
     mutationFn: createNote,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['notes'] });
@@ -55,7 +55,7 @@ export default function NoteModal({ onClose, note }: NoteModalProps) {
   });
 
   const handleSubmit = (values: NoteFormValues) => {
-    mutate(values);
+    mutation.mutate(values);
   };
 
   const handleBackdropClick = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -77,7 +77,7 @@ export default function NoteModal({ onClose, note }: NoteModalProps) {
         <NoteForm
           onSubmit={handleSubmit}
           onClose={onClose}
-          isSubmitting={isLoading}
+          isSubmitting={mutation.isPending}
           initialValues={initialValues}
         />
       </div>
@@ -85,6 +85,7 @@ export default function NoteModal({ onClose, note }: NoteModalProps) {
     modalRoot
   );
 }
+
 
 
 

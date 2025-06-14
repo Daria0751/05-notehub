@@ -25,7 +25,6 @@ const App = () => {
   const [debouncedSearch] = useDebounce(search, 1000);
   const [page, setPage] = useState(1);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedNote, setSelectedNote] = useState<Note | null>(null);
 
   const {
     data,
@@ -35,12 +34,12 @@ const App = () => {
   } = useQuery<NotesResponse, Error>({
     queryKey: ['notes', debouncedSearch, page],
     queryFn: () => fetchNotes(debouncedSearch, page),
-    placeholderData: () => ({ notes: [], totalPages: 1 }),
+    placeholderData: { notes: [], totalPages: 1 },
     staleTime: 1000 * 60 * 5,
   });
 
   useEffect(() => {
-    if (data?.notes?.length === 0) {
+    if (Array.isArray(data?.notes) && data.notes.length === 0) {
       toast('No notes found for your request.');
     }
   }, [data]);
@@ -65,15 +64,7 @@ const App = () => {
   };
 
   const openModal = () => setIsModalOpen(true);
-  const closeModal = () => {
-    setIsModalOpen(false);
-    setSelectedNote(null);
-  };
-
-  const handleNoteSelect = (note: Note) => {
-    setSelectedNote(note);
-    setIsModalOpen(true);
-  };
+  const closeModal = () => setIsModalOpen(false);
 
   return (
     <div className={css.app}>
@@ -93,27 +84,27 @@ const App = () => {
         </ErrorMessage>
       )}
 
-      {data?.notes?.length > 0 && (
+      {Array.isArray(data?.notes) && data.notes.length > 0 ? (
         <>
-          <NoteList notes={data.notes} onSelect={handleNoteSelect} />
+          <NoteList notes={data.notes} />
           {data.totalPages > 1 && (
             <Pagination
               totalPages={data.totalPages}
-              current={page}
+              currentPage={page}
               onPageChange={handlePageChange}
             />
           )}
         </>
-      )}
+      ) : null}
 
-      {isModalOpen && (
-        <NoteModal onClose={closeModal} note={selectedNote || undefined} />
-      )}
+      {isModalOpen && <NoteModal onClose={closeModal} />}
     </div>
   );
 };
 
 export default App;
+
+
 
 
 

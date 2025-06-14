@@ -1,10 +1,5 @@
-import React from 'react';
 import { Formik, Form, Field, ErrorMessage as FormikErrorMessage } from 'formik';
 import * as Yup from 'yup';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { createNote } from '../../services/noteService';
-import type { Note } from '../../types/note';
-
 import css from './NoteForm.module.css';
 
 interface NoteFormValues {
@@ -82,6 +77,7 @@ export default function NoteForm({ onClose, onSubmit, isSubmitting, initialValue
     </Formik>
   );
 }
+
 
 
 
