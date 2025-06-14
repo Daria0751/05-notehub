@@ -6,7 +6,7 @@ import toast, { Toaster } from 'react-hot-toast';
 import SearchBox from '../SearchBox/SearchBox';
 import NoteList from '../NoteList/NoteList';
 import Loader from '../Loader/Loader';
-import ErrorMessage from '../ErrorMessage/ErrorMessage'; // Універсальний компонент
+import ErrorMessage from '../ErrorMessage/ErrorMessage';
 import NoteModal from '../NoteModal/NoteModal';
 import Pagination from '../Pagination/Pagination';
 
@@ -25,7 +25,6 @@ const App = () => {
   const [debouncedSearch] = useDebounce(search, 1000);
   const [page, setPage] = useState(1);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedNote, setSelectedNote] = useState<Note | null>(null);
 
   const {
     data,
@@ -35,7 +34,7 @@ const App = () => {
   } = useQuery<NotesResponse, Error>({
     queryKey: ['notes', debouncedSearch, page],
     queryFn: () => fetchNotes(debouncedSearch, page),
-    keepPreviousData: true,
+    placeholderData: () => ({ notes: [], totalPages: 1 }),
     staleTime: 1000 * 60 * 5,
   });
 
@@ -65,28 +64,14 @@ const App = () => {
   };
 
   const openModal = () => setIsModalOpen(true);
-  const closeModal = () => {
-    setIsModalOpen(false);
-    setSelectedNote(null);
-  };
-
-  const handleSelectNote = (note: Note) => {
-    setSelectedNote(note);
-    setIsModalOpen(true);
-  };
+  const closeModal = () => setIsModalOpen(false);
 
   return (
     <div className={css.app}>
       <Toaster />
       <header className={css.toolbar}>
-        <SearchBox value={search} onSearch={handleSearch} onChange={handleSearch} />
-        <button
-          className={css.button}
-          onClick={() => {
-            setSelectedNote(null);
-            openModal();
-          }}
-        >
+        <SearchBox value={search} onChange={handleSearch} />
+        <button className={css.button} onClick={openModal}>
           Create note +
         </button>
       </header>
@@ -101,25 +86,24 @@ const App = () => {
 
       {data?.notes?.length > 0 && (
         <>
-          <NoteList notes={data.notes} onSelect={handleSelectNote} />
+          <NoteList notes={data.notes} />
           {data.totalPages > 1 && (
             <Pagination
-              pageCount={data.totalPages}
-              currentPage={page}
+              totalPages={data.totalPages}
+              current={page}
               onPageChange={handlePageChange}
             />
           )}
         </>
       )}
 
-      {isModalOpen && (
-        <NoteModal onClose={closeModal} note={selectedNote ?? undefined} />
-      )}
+      {isModalOpen && <NoteModal onClose={closeModal} />}
     </div>
   );
 };
 
 export default App;
+
 
 
 

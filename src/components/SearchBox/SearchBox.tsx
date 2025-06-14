@@ -3,14 +3,12 @@ import css from './SearchBox.module.css';
 
 interface SearchBoxProps {
   value: string;
-  onSearch: (value: string) => void;
   onChange: (value: string) => void;
 }
 
-const SearchBox = ({ value, onSearch, onChange }: SearchBoxProps) => {
+const SearchBox = ({ value, onChange }: SearchBoxProps) => {
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    onSearch(value);
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -34,6 +32,7 @@ const SearchBox = ({ value, onSearch, onChange }: SearchBoxProps) => {
 };
 
 export default SearchBox;
+
 
 
 
