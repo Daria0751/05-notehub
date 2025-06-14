@@ -35,7 +35,7 @@ const App = () => {
     queryKey: ['notes', debouncedSearch, page],
     queryFn: () => fetchNotes(debouncedSearch, page),
     staleTime: 1000 * 60 * 5,
-    keepPreviousData: true, // <-- Важливо для плавної пагінації
+    keepPreviousData: true,
   });
 
   useEffect(() => {
