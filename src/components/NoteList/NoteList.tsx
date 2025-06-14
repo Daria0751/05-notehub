@@ -38,7 +38,7 @@ export default function NoteList({ notes, onSelect }: NoteListProps) {
               e.stopPropagation();
               handleDelete(note.id);
             }}
-            disabled={mutation.isLoading}
+            disabled={mutation.isPending}
           >
             Delete
           </button>
@@ -47,6 +47,7 @@ export default function NoteList({ notes, onSelect }: NoteListProps) {
     </ul>
   );
 }
+
 
 
 

@@ -25,6 +25,7 @@ const App = () => {
   const [debouncedSearch] = useDebounce(search, 1000);
   const [page, setPage] = useState(1);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedNote, setSelectedNote] = useState<Note | null>(null);
 
   const {
     data,
@@ -64,7 +65,15 @@ const App = () => {
   };
 
   const openModal = () => setIsModalOpen(true);
-  const closeModal = () => setIsModalOpen(false);
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setSelectedNote(null);
+  };
+
+  const handleNoteSelect = (note: Note) => {
+    setSelectedNote(note);
+    setIsModalOpen(true);
+  };
 
   return (
     <div className={css.app}>
@@ -86,7 +95,7 @@ const App = () => {
 
       {data?.notes?.length > 0 && (
         <>
-          <NoteList notes={data.notes} />
+          <NoteList notes={data.notes} onSelect={handleNoteSelect} />
           {data.totalPages > 1 && (
             <Pagination
               totalPages={data.totalPages}
@@ -97,7 +106,9 @@ const App = () => {
         </>
       )}
 
-      {isModalOpen && <NoteModal onClose={closeModal} />}
+      {isModalOpen && (
+        <NoteModal onClose={closeModal} note={selectedNote || undefined} />
+      )}
     </div>
   );
 };
