@@ -34,8 +34,8 @@ const App = () => {
   } = useQuery<NotesResponse, Error>({
     queryKey: ['notes', debouncedSearch, page],
     queryFn: () => fetchNotes(debouncedSearch, page),
-    keepPreviousData: true,
     staleTime: 1000 * 60 * 5,
+    keepPreviousData: true, // <-- Важливо для плавної пагінації
   });
 
   useEffect(() => {
