@@ -22,7 +22,7 @@ const validationSchema = Yup.object({
     .required('Title is required'),
   content: Yup.string()
     .max(500, 'Content must be 500 characters or less')
-    .notRequired(), // <-- content тепер необов'язкове
+    .notRequired(), 
   tag: Yup.mixed<NoteFormValues['tag']>()
     .oneOf(['Todo', 'Work', 'Personal', 'Meeting', 'Shopping'])
     .required('Tag is required'),

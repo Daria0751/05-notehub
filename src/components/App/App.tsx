@@ -1,6 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useDebounce } from 'use-debounce';
-import { useQuery } from '@tanstack/react-query';
+import {
+  useQuery,
+  keepPreviousData,
+} from '@tanstack/react-query';
 import toast, { Toaster } from 'react-hot-toast';
 
 import SearchBox from '../SearchBox/SearchBox';
@@ -35,7 +38,7 @@ const App = () => {
     queryKey: ['notes', debouncedSearch, page],
     queryFn: () => fetchNotes(debouncedSearch, page),
     staleTime: 1000 * 60 * 5,
-    keepPreviousData: true,
+    placeholderData: keepPreviousData, // ✅ правильна опція для TanStack Query v5
   });
 
   useEffect(() => {
@@ -103,6 +106,7 @@ const App = () => {
 };
 
 export default App;
+
 
 
 
