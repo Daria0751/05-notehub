@@ -1,9 +1,8 @@
 import axios from 'axios';
 import type { AxiosResponse } from 'axios';
-import type { Note } from '../types/note';
+import type { Note, NewNoteData } from '../types/note';
 
 const BASE_URL = 'https://notehub-public.goit.study/api';
-
 const TOKEN = import.meta.env.VITE_NOTEHUB_TOKEN;
 
 if (!TOKEN) {
@@ -59,7 +58,7 @@ export const fetchNotes = async (
 };
 
 export const createNote = async (
-  payload: Omit<Note, 'id'> // оскільки id генерується сервером
+  payload: NewNoteData
 ): Promise<Note> => {
   try {
     const response: AxiosResponse<Note> = await axiosInstance.post('/notes', payload);
@@ -74,7 +73,7 @@ export const createNote = async (
   }
 };
 
-export const deleteNote = async (id: number): Promise<Note> => {
+export const deleteNote = async (id: string): Promise<Note> => {
   try {
     const response: AxiosResponse<Note> = await axiosInstance.delete(`/notes/${id}`);
     return response.data;
@@ -87,6 +86,7 @@ export const deleteNote = async (id: number): Promise<Note> => {
     throw new Error('Failed to delete note.');
   }
 };
+
 
 
 

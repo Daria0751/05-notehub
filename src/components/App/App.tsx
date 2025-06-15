@@ -1,9 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useDebounce } from 'use-debounce';
-import {
-  useQuery,
-  keepPreviousData,
-} from '@tanstack/react-query';
+import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import toast, { Toaster } from 'react-hot-toast';
 
 import SearchBox from '../SearchBox/SearchBox';
@@ -37,12 +34,12 @@ const App = () => {
   } = useQuery<NotesResponse, Error>({
     queryKey: ['notes', debouncedSearch, page],
     queryFn: () => fetchNotes(debouncedSearch, page),
+    placeholderData: keepPreviousData,
     staleTime: 1000 * 60 * 5,
-    placeholderData: keepPreviousData, // ✅ правильна опція для TanStack Query v5
   });
 
   useEffect(() => {
-    if (Array.isArray(data?.notes) && data.notes.length === 0) {
+    if (data?.notes?.length === 0) {
       toast('No notes found for your request.');
     }
   }, [data]);
@@ -81,13 +78,13 @@ const App = () => {
 
       {isLoading && <Loader />}
 
-      {isError && !error?.message.includes('429') && error?.message && (
+      {isError && !error?.message.includes('429') && (
         <ErrorMessage name="" className={css.errorText}>
           {error.message}
         </ErrorMessage>
       )}
 
-      {Array.isArray(data?.notes) && data.notes.length > 0 ? (
+      {data?.notes?.length ? (
         <>
           <NoteList notes={data.notes} />
           {data.totalPages > 1 && (
@@ -106,6 +103,7 @@ const App = () => {
 };
 
 export default App;
+
 
 
 
