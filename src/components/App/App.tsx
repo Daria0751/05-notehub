@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useDebounce } from 'use-debounce';
-import { useQuery, keepPreviousData } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import toast, { Toaster } from 'react-hot-toast';
 
 import SearchBox from '../SearchBox/SearchBox';
@@ -34,18 +34,25 @@ const App = () => {
   } = useQuery<NotesResponse, Error>({
     queryKey: ['notes', debouncedSearch, page],
     queryFn: () => fetchNotes(debouncedSearch, page),
-    placeholderData: keepPreviousData,
     staleTime: 1000 * 60 * 5,
+    placeholderData: { notes: [], totalPages: 1 },
   });
 
+  // Для дебагу
   useEffect(() => {
-    if (data?.notes?.length === 0) {
+    console.log('Fetched notes:', data);
+  }, [data]);
+
+  // Повідомлення, якщо нотаток немає
+  useEffect(() => {
+    if (data && data.notes.length === 0) {
       toast('No notes found for your request.');
     }
   }, [data]);
 
+  // Повідомлення про помилки
   useEffect(() => {
-    if (isError && error instanceof Error) {
+    if (isError && error?.message) {
       if (error.message.includes('429')) {
         toast.error('Too many requests. Please wait a moment and try again.');
       } else {
@@ -78,13 +85,13 @@ const App = () => {
 
       {isLoading && <Loader />}
 
-      {isError && !error?.message.includes('429') && (
+      {isError && error && !error.message.includes('429') && (
         <ErrorMessage name="" className={css.errorText}>
           {error.message}
         </ErrorMessage>
       )}
 
-      {data?.notes?.length ? (
+      {data && data.notes.length > 0 ? (
         <>
           <NoteList notes={data.notes} />
           {data.totalPages > 1 && (
@@ -103,6 +110,8 @@ const App = () => {
 };
 
 export default App;
+
+
 
 
 

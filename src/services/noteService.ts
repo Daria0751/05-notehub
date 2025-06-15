@@ -27,7 +27,7 @@ export const fetchNotes = async (
 ): Promise<FetchNotesResponse> => {
   try {
     const response: AxiosResponse<{
-      data: Note[];
+      notes: Note[];
       totalPages: number;
     }> = await axiosInstance.get('/notes', {
       params: {
@@ -38,7 +38,7 @@ export const fetchNotes = async (
     });
 
     return {
-      notes: response.data.data,
+      notes: response.data.notes,         // <-- Ось правильне поле notes
       totalPages: response.data.totalPages,
     };
   } catch (error) {
@@ -90,6 +90,7 @@ export const deleteNote = async (id: number): Promise<Note> => {
     throw new Error('Failed to delete note.');
   }
 };
+
 
 
 
