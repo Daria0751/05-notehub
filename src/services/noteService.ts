@@ -1,6 +1,6 @@
 import axios from 'axios';
 import type { AxiosResponse } from 'axios';
-import type { Note, NewNoteData } from '../types/note';
+import type { Note } from '../types/note';
 
 const BASE_URL = 'https://notehub-public.goit.study/api';
 const TOKEN = import.meta.env.VITE_NOTEHUB_TOKEN;
@@ -18,8 +18,6 @@ const axiosInstance = axios.create({
 
 interface FetchNotesResponse {
   notes: Note[];
-  total: number;
-  page: number;
   totalPages: number;
 }
 
@@ -30,8 +28,6 @@ export const fetchNotes = async (
   try {
     const response: AxiosResponse<{
       data: Note[];
-      total: number;
-      page: number;
       totalPages: number;
     }> = await axiosInstance.get('/notes', {
       params: {
@@ -43,8 +39,6 @@ export const fetchNotes = async (
 
     return {
       notes: response.data.data,
-      total: response.data.total,
-      page: response.data.page,
       totalPages: response.data.totalPages,
     };
   } catch (error) {
@@ -57,11 +51,21 @@ export const fetchNotes = async (
   }
 };
 
-export const createNote = async (
-  payload: NewNoteData
-): Promise<Note> => {
+export const createNote = async ({
+  title,
+  content,
+  tag,
+}: {
+  title: string;
+  content?: string;
+  tag: 'Todo' | 'Work' | 'Personal' | 'Meeting' | 'Shopping';
+}): Promise<Note> => {
   try {
-    const response: AxiosResponse<Note> = await axiosInstance.post('/notes', payload);
+    const response: AxiosResponse<Note> = await axiosInstance.post('/notes', {
+      title,
+      content,
+      tag,
+    });
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error)) {
@@ -73,7 +77,7 @@ export const createNote = async (
   }
 };
 
-export const deleteNote = async (id: string): Promise<Note> => {
+export const deleteNote = async (id: number): Promise<Note> => {
   try {
     const response: AxiosResponse<Note> = await axiosInstance.delete(`/notes/${id}`);
     return response.data;
@@ -86,6 +90,7 @@ export const deleteNote = async (id: string): Promise<Note> => {
     throw new Error('Failed to delete note.');
   }
 };
+
 
 
 

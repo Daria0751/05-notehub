@@ -19,9 +19,8 @@ export default function NoteList({ notes, onSelect }: NoteListProps) {
   });
 
   const handleDelete = (id: number) => {
-    mutation.mutate(id.toString());
+    mutation.mutate(id);
   };
-  
 
   return (
     <ul className={styles.grid}>
